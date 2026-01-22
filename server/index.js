@@ -18,23 +18,31 @@ import orderRouter from './route/order.route.js'
 const app = express()
 console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL)
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://vroom-10-min-deliv.vercel.app"
+];
+
 app.use(cors({
   origin: (origin, callback) => {
-    console.log("➡️ Request origin:", origin);
+    // Allow server-to-server, Vercel probes, Postman
+    if (!origin) return callback(null, true);
 
-    if (!origin) {
-      // allow server-to-server / preflight / Vercel probes
+    // Allow all Vercel preview deployments
+    if (origin.endsWith(".vercel.app")) {
       return callback(null, true);
     }
 
-    if (origin === process.env.FRONTEND_URL) {
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
-    return callback(new Error("Not allowed by CORS"));
+    // IMPORTANT: do NOT throw error
+    return callback(null, false);
   },
   credentials: true
 }));
+
 
 
 app.use(express.json())
