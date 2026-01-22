@@ -16,6 +16,8 @@ import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
 
 const app = express()
+console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL)
+
 app.use(cors({
     credentials:true,
     origin:process.env.FRONTEND_URL
