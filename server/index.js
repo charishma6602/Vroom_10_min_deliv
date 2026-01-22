@@ -19,9 +19,21 @@ const app = express()
 console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL)
 
 app.use(cors({
-    credentials:true,
-    origin:process.env.FRONTEND_URL
+  origin: (origin, callback) => {
+    console.log("➡️ Request origin:", origin)
+    console.log("➡️ Allowed origin:", process.env.FRONTEND_URL)
+
+    if (!origin) return callback(null, true)
+
+    if (origin === process.env.FRONTEND_URL) {
+      return callback(null, true)
+    }
+
+    callback(new Error("CORS blocked"))
+  },
+  credentials: true
 }))
+
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
