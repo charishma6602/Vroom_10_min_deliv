@@ -23,7 +23,7 @@ const allowedOrigins = [
   "https://vroom-10-min-deliv.vercel.app"
 ];
 
-app.use(cors({
+app.use(cors( {
   origin: (origin, callback) => {
     // Allow server-to-server, Vercel probes, Postman
     if (!origin) return callback(null, true);
