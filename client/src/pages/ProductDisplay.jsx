@@ -6,7 +6,7 @@ import SummaryApi from "../common/SummaryApi";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import Divider from "../components/Divider";
 import image1 from '../assets/minute_delivery.png'
-import image2 from '../assets/Best_prices_offers.png'
+import image2 from '../assets/Best_Prices_Offers.png'
 import image3 from '../assets/Wide_Assortment.png'
 import { DisplayPriceInRupees} from "../utils/DisplayPriceInRupees";
 import { pricewithDiscount } from "../utils/pricewithDiscount";
