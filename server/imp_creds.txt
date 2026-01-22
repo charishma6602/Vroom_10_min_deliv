@@ -1,0 +1,3 @@
+mongodb database: username:cherrydarsi02, password: crPN1B125iKMBMaI
+mongodb+srv://cherrydarsi02:crPN1B125iKMBMaI@project1.nopdbwv.mongodb.net/?retryWrites=true&w=majority&appName=Project11
+resend_api key : re_jcJDN6Jq_DrnoNc1jhbtqHRgkhkH98wJP
