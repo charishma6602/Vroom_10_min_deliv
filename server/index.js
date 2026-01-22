@@ -20,19 +20,22 @@ console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL)
 
 app.use(cors({
   origin: (origin, callback) => {
-    console.log("➡️ Request origin:", origin)
-    console.log("➡️ Allowed origin:", process.env.FRONTEND_URL)
+    console.log("➡️ Request origin:", origin);
 
-    if (!origin) return callback(null, true)
-
-    if (origin === process.env.FRONTEND_URL) {
-      return callback(null, true)
+    if (!origin) {
+      // allow server-to-server / preflight / Vercel probes
+      return callback(null, true);
     }
 
-    callback(new Error("CORS blocked"))
+    if (origin === process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true
-}))
+}));
+
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
