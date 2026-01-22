@@ -22,26 +22,19 @@ app.use(cors({
   origin: (origin, callback) => {
     console.log("➡️ Request origin:", origin);
 
-    // ✅ Allow all non-browser / preflight requests
     if (!origin) {
+      // allow server-to-server / preflight / Vercel probes
       return callback(null, true);
     }
 
-    // ✅ Allow your frontend
     if (origin === process.env.FRONTEND_URL) {
       return callback(null, true);
     }
 
-    // ❌ Block others silently (do NOT throw Error)
-    return callback(null, false);
+    return callback(new Error("Not allowed by CORS"));
   },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  credentials: true
 }));
-
-// 🔥 VERY IMPORTANT: handle preflight explicitly
-app.options("*", cors());
 
 
 app.use(express.json())
