@@ -24,9 +24,16 @@ console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL)
 connectDB()
 
 app.use(cors({
+  origin: [
+    "https://vroom-10-min-deliv-app.vercel.app"
+  ],
   credentials: true,
-  origin: process.env.FRONTEND_URL
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }))
+
+// 👇 THIS IS CRUCIAL
+app.options("*", cors())
 
 app.use(express.json())
 app.use(cookieParser())
