@@ -5,7 +5,6 @@ dotenv.config()
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import helmet from 'helmet'
-
 import connectDB from './config/connectDB.js'
 import userRouter from './route/user.route.js'
 import categoryRouter from './route/category.route.js'
@@ -18,37 +17,50 @@ import orderRouter from './route/order.route.js'
 
 const app = express()
 
-console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL)
-
-// ✅ connect DB (NO listen)
-connectDB()
-
+// Enhanced CORS configuration
 app.use(cors({
-  origin: [
-    "https://vroom-10-min-deliv-app.vercel.app"
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+    credentials: true,
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            process.env.FRONTEND_URL,
+            'https://vroom-10-min-deliv-app.vercel.app', // Hardcoded as fallback
+            'http://localhost:3000', // For development
+            'http://localhost:5173'  // For Vite dev server
+        ];
+        
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie']
 }))
 
-// 👇 THIS IS CRUCIAL
-app.options("*", cors())
+// Handle preflight requests
+app.options('*', cors())
 
-app.use(express.json())
+app.use(express.json({ limit: '50mb' }))
+app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 app.use(cookieParser())
-
-// ✅ FIX morgan
-app.use(morgan("combined"))
-
+app.use(morgan('combined'))
 app.use(helmet({
-  crossOriginResourcePolicy: false
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false
 }))
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "Server is up"
-  })
+// Health check endpoint
+app.get("/", (request, response) => {
+    response.json({
+        message: "Server is running",
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV
+    })
 })
 
 app.use('/api/user', userRouter)
@@ -60,5 +72,52 @@ app.use('/api/cart', cartRouter)
 app.use('/api/order', orderRouter)
 app.use('/api/address', addressRouter)
 
-// ✅ THIS IS WHAT VERCEL NEEDS
-export default app
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Error:', err.message)
+    res.status(500).json({ 
+        message: 'Internal Server Error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    })
+})
+
+// 404 handler
+app.use('*', (req, res) => {
+    res.status(404).json({ message: 'Route not found' })
+})
+
+// Connect to DB and export handler for Vercel
+let isConnected = false;
+
+const connectToDatabase = async () => {
+    if (isConnected) {
+        return;
+    }
+    try {
+        await connectDB();
+        isConnected = true;
+        console.log('Database connected successfully');
+    } catch (error) {
+        console.error('Database connection failed:', error);
+        throw error;
+    }
+};
+
+// For Vercel serverless
+export default async function handler(req, res) {
+    await connectToDatabase();
+    return app(req, res);
+}
+
+// For local development
+const PORT = process.env.PORT || 8080;
+
+if (process.env.NODE_ENV !== 'production') {
+    connectDB().then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    }).catch(err => {
+        console.error('Failed to start server:', err);
+    });
+}
