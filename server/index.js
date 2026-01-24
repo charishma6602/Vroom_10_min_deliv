@@ -15,43 +15,23 @@ import cartRouter from './route/cart.route.js'
 import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
 
+
 const app = express()
 console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL)
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "https://vroom-10-min-deliv.vercel.app"
-];
 
-app.use(cors( {
-  origin: (origin, callback) => {
-    // Allow server-to-server, Vercel probes, Postman
-    if (!origin) return callback(null, true);
-
-    // Allow all Vercel preview deployments
-    if (origin.endsWith(".vercel.app")) {
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    // IMPORTANT: do NOT throw error
-    return callback(null, false);
-  },
-  credentials: true
-}));
-
-
-
+app.use(cors({
+    credentials : true,
+    origin : process.env.FRONTEND_URL
+}))
 app.use(express.json())
-app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 app.use(morgan())
 app.use(helmet({
-    crossOriginResourcePolicy:false  //if backend is in a different domain than the frontend, it shows error while loading resources to frontend
+    crossOriginResourcePolicy : false
 }))
+
+//if backend is in a different domain than the frontend, it shows error while loading resources to frontend
 
 const PORT = process.env.PORT || 8080
 
@@ -72,7 +52,8 @@ app.use('/api/cart',cartRouter)
 app.use('/api/order',orderRouter)
 app.use('/api/address',addressRouter)
 
-connectDB()
-app.listen(PORT,()=>{
+connectDB().then(()=>{
+  app.listen(PORT,()=>{
     console.log("Server is running",PORT)
+})
 })
