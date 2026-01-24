@@ -1,11 +1,12 @@
-import express, { response } from 'express'
+import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 dotenv.config()
 import cookieParser from 'cookie-parser'
-import morgan from 'morgan'  //In logger, when any api is called, it'll be displayed
+import morgan from 'morgan'
 import helmet from 'helmet'
-import connectDB  from './config/connectDB.js'
+
+import connectDB from './config/connectDB.js'
 import userRouter from './route/user.route.js'
 import categoryRouter from './route/category.route.js'
 import uploadRoute from './route/upload.route.js'
@@ -15,45 +16,42 @@ import cartRouter from './route/cart.route.js'
 import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
 
-
 const app = express()
+
 console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL)
 
+// ✅ connect DB (NO listen)
+connectDB()
 
 app.use(cors({
-    credentials : true,
-    origin : process.env.FRONTEND_URL
+  credentials: true,
+  origin: process.env.FRONTEND_URL
 }))
+
 app.use(express.json())
 app.use(cookieParser())
-app.use(morgan())
+
+// ✅ FIX morgan
+app.use(morgan("combined"))
+
 app.use(helmet({
-    crossOriginResourcePolicy : false
+  crossOriginResourcePolicy: false
 }))
 
-//if backend is in a different domain than the frontend, it shows error while loading resources to frontend
-
-const PORT = process.env.PORT || 8080
-
-app.get("/",(request,response)=>{
-    //server to client
-    response.json({
-        message:"Server is up " + PORT
-
-    })
+app.get("/", (req, res) => {
+  res.json({
+    message: "Server is up"
+  })
 })
 
-app.use('/api/user', userRouter) //accessing predefined string of /api/user path, which will be called along with 'userRouter'
-app.use('/api/category',categoryRouter)
-app.use('/api/file',uploadRoute)
-app.use('/api/product',productRouter)
-app.use('/api/subcategory',subcategoryRouter)
-app.use('/api/cart',cartRouter)
-app.use('/api/order',orderRouter)
-app.use('/api/address',addressRouter)
+app.use('/api/user', userRouter)
+app.use('/api/category', categoryRouter)
+app.use('/api/file', uploadRoute)
+app.use('/api/product', productRouter)
+app.use('/api/subcategory', subcategoryRouter)
+app.use('/api/cart', cartRouter)
+app.use('/api/order', orderRouter)
+app.use('/api/address', addressRouter)
 
-connectDB().then(()=>{
-  app.listen(PORT,()=>{
-    console.log("Server is running",PORT)
-})
-})
+// ✅ THIS IS WHAT VERCEL NEEDS
+export default app
