@@ -8,7 +8,7 @@ const Axios = axios.create({
 //sending acces token in the header
 Axios.interceptors.request.use(
     async(config)=>{
-        const accesstoken = localStorage.getItem('accesstoken')
+        const accesstoken = localStorage.getItem('accessToken')
     
 
     if(accesstoken){
