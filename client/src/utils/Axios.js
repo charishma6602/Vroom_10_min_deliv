@@ -10,7 +10,7 @@ Axios.interceptors.request.use(
     async(config)=>{
         const accesstoken = localStorage.getItem('accessToken')
     
-
+      console.log("Checking LocalStorage for token...", accesstoken);
     if(accesstoken){
         config.headers.Authorization = `Bearer ${accesstoken}`
 
