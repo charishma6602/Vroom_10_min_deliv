@@ -26,30 +26,35 @@ Axios.interceptors.request.use(
 
 //if accesstoken is expired, we need refreshtoken (to extend access token life)
 //interceptors are like middleware that runs desirable code before sending a request or after receiving a response
-Axios.interceptors.request.use(
-    (response)=>{
-        return response
-    },
-    async(error)=>{
-        let originRequest = error.config
+Axios.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  async (error) => {
+    const originalRequest = error.config
 
-        if(error.response.status === 401 && !originRequest.retry){
-            originRequest.retry =  true
-            const refreshtoken =  localStorage.getItem("refreshToken")
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true
 
-            if(refreshtoken){
-                const newAccessToken = await refreshAccessToken(refreshtoken)
+      const refreshtoken = localStorage.getItem("refreshToken")
 
-                if(newAccessToken){
-                    originRequest.headers.Authorization = `Bearer ${newAccessToken}`
-                    return Axios(originRequest)
-                }
-            }
+      if (refreshtoken) {
+        const newAccessToken = await refreshAccessToken(refreshtoken)
+
+        if (newAccessToken) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+          return Axios(originalRequest)
         }
-
-        return Promise.reject(error)
+      }
     }
+
+    return Promise.reject(error)
+  }
 )
+
 
 
 const refreshAccessToken = async(refreshtoken)=>{
