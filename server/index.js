@@ -17,9 +17,25 @@ import orderRouter from './route/order.route.js'
 
 const app = express()
 app.use(cors({
-    credentials : true,
-    origin : process.env.FRONTEND_URL
-}))
+    credentials: true,
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+
+        const allowedOrigins = [
+            process.env.FRONTEND_URL,
+            "https://vroom-10-min-deliv-app.vercel.app"
+        ];
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    }
+}));
+
+app.options(/.*/, cors());
+
 app.use(express.json())
 app.use(cookieParser())
 app.use(morgan())
