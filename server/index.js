@@ -60,7 +60,7 @@ app.get("/", (request, response) => {
     response.json({
         message: "Server is running",
         timestamp: new Date().toISOString(),
-        env: process.env.NODE_ENV
+        //env: process.env.NODE_ENV
     })
 })
 
@@ -78,7 +78,8 @@ app.use((err, req, res, next) => {
     console.error('Error:', err.message)
     res.status(500).json({ 
         message: 'Internal Server Error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        error: process.env.VERCEL ? undefined : err.message
+
     })
 })
 
@@ -114,7 +115,7 @@ export default async function handler(req, res) {
 // For local development
 const PORT = process.env.PORT || 8080;
 
-if (process.env.NODE_ENV !== 'production') {
+if (!process.env.VERCEL) {
     connectDB().then(() => {
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
@@ -123,3 +124,4 @@ if (process.env.NODE_ENV !== 'production') {
         console.error('Failed to start server:', err);
     });
 }
+
