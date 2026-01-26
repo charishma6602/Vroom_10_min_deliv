@@ -161,7 +161,8 @@ export async function loginController(request, response) {
         const cookieOption = {
             httpOnly : true,
             secure: true,
-            sameSite:"None"
+            sameSite:"None",
+            path:"/"
         }
         response.cookie('accessToken',accesstoken, cookieOption)
         response.cookie('refreshToken',refreshtoken, cookieOption)
@@ -190,7 +191,7 @@ export async function logoutController(request, response) {
         const cookieOption = {
             httpOnly : true,
             secure: true,
-            sameSite:"None"
+            sameSite:"None",
         }
         response.clearCookie("accessToken",cookieOption)
         response.clearCookie("refreshToken",cookieOption)
