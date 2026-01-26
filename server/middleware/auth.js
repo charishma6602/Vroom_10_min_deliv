@@ -2,8 +2,7 @@ import jwt from 'jsonwebtoken'
 
 const auth = async (req, res, next) => {
   try {
-    console.log("🔥 Incoming cookies1:", req.cookies)
-    console.log("🔥 Authorization header1:", req.headers.authorization)
+    console.log("ALL HEADERS:", req.headers);
 
     const token =
       req.cookies?.accessToken ||
