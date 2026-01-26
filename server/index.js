@@ -60,10 +60,19 @@ app.use("/api/cart",cartRouter)
 app.use("/api/address",addressRouter)
 app.use('/api/order',orderRouter)
 
-connectDB().then(()=>{
-    app.listen(PORT,()=>{
-        console.log("Server is running",PORT)
-    })
-})
+// Remove the app.listen block entirely for Vercel
+// Vercel only needs the exported 'app'
 
-export default app
+const startServer = async () => {
+  try {
+    await connectDB();
+    console.log("Database connected successfully");
+  } catch (err) {
+    console.error("Database connection failed:", err);
+  }
+};
+
+startServer();
+
+export default app;
+
