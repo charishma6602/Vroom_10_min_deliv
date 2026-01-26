@@ -16,23 +16,13 @@ import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
 
 const app = express()
-app.use(cors({
-    credentials: true,
-    origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: "https://vroom-10-min-deliv-app.vercel.app",
+    credentials: true
+  })
+)
 
-        const allowedOrigins = [
-            process.env.FRONTEND_URL,
-            "https://vroom-10-min-deliv-app.vercel.app"
-        ];
-
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    }
-}));
 
 app.options(/.*/, cors());
 
