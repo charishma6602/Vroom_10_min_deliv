@@ -62,10 +62,11 @@ const refreshAccessToken = async(refreshtoken)=>{
         })
 
         const accesstoken = response.data.data.accesstoken
-        localStorage.setItem('accesstoken',accesstoken)
+        localStorage.setItem('accessToken',accesstoken)
+        console.log("response: ",response)
         return accesstoken
 
-        console.log(response)
+        
     }catch(error){
         console.log(error)
     }
