@@ -47,54 +47,56 @@ const Login = () => {
   //name, email, password and confirm password 
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+  e.preventDefault();
 
+  try {
+    console.log("🚀 Login Attempt Started...");
     
-    try {
-      const response = await Axios({
-        ...SummaryApi.login,
-        data : data
-        
-      })
-      console.log("Full Login Response:", response.data); // DEBUG LOG
+    const response = await Axios({
+      ...SummaryApi.login,
+      data: data
+    });
 
-        if (response.data.success) {
-            // Check if the path to the token is correct
-            // Is it response.data.data.accesstoken or just response.data.accesstoken?
-            const token = response.data?.data?.accesstoken; 
-            
-            if (token) {
-                localStorage.setItem('accessToken', token);
-                localStorage.setItem('refreshToken', response.data?.data?.refreshtoken);
-                console.log("Token saved successfully!");
-            } else {
-                console.log("Token missing in response data structure!");
-            }
-        }
-      if(response.data.error){
-        toast.error(response.data.message)
-      }
-      
-      if(response.data.success){
-        toast.success(response.data.message)
-        localStorage.setItem('accessToken',response.data.data.accesstoken)
-        localStorage.setItem('refreshToken',response.data.data.refreshToken)
+    // 1. Log the entire response to see the structure
+    console.log("🔥 Full Response Object:", response);
+    console.log("📦 Response Data:", response.data);
 
-        const userDetails = await fetchUserDetails()
-        dispatch (setUserDetails(userDetails.data))
-        setdata({
-           
-            email:"",
-            password:"",
-            
-        })
-        navigate("/")
+    if (response.data.success) {
+      toast.success(response.data.message);
+
+      // 2. CRITICAL: Check naming (accesstoken vs accessToken)
+      // Based on your previous backend code, it was 'accesstoken' (lowercase)
+      const token = response.data?.data?.accesstoken;
+      const refresh = response.data?.data?.refreshtoken;
+
+      console.log("🔑 Detected Token:", token);
+
+      if (token) {
+        localStorage.setItem('accessToken', token);
+        localStorage.setItem('refreshToken', refresh);
+        console.log("✅ Tokens saved to LocalStorage");
+      } else {
+        console.warn("⚠️ Success was true, but 'accesstoken' was missing in data!");
       }
-    } catch (error) {
-      AxiosToastError(error)
+
+      // 3. Fetch user details
+      const userDetails = await fetchUserDetails();
+      dispatch(setUserDetails(userDetails.data));
+
+      setdata({ email: "", password: "" });
+      navigate("/");
     }
 
+    if (response.data.error) {
+      toast.error(response.data.message);
+    }
+
+  } catch (error) {
+    // 4. Log the error specifically to see if it's a 500 or 401
+    console.error("❌ Login Catch Error:", error.response?.status, error.response?.data);
+    AxiosToastError(error);
   }
+};
 
   
   return (
