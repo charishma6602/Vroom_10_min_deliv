@@ -29,6 +29,7 @@ const Login = () => {
   const dispatch = useDispatch()
 
   const handleChange = (e) => {
+    e.preventDefault()
     const { name, value } = e.target
 
     setdata((preve) => {  //obtaining previous state values in this
@@ -55,6 +56,21 @@ const Login = () => {
         data : data
         
       })
+      console.log("Full Login Response:", response.data); // DEBUG LOG
+
+        if (response.data.success) {
+            // Check if the path to the token is correct
+            // Is it response.data.data.accesstoken or just response.data.accesstoken?
+            const token = response.data?.data?.accesstoken; 
+            
+            if (token) {
+                localStorage.setItem('accessToken', token);
+                localStorage.setItem('refreshToken', response.data?.data?.refreshtoken);
+                console.log("Token saved successfully!");
+            } else {
+                console.log("Token missing in response data structure!");
+            }
+        }
       if(response.data.error){
         toast.error(response.data.message)
       }
